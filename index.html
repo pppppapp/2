@@ -1,0 +1,501 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>홍콩 거리 한자</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column like a phone held on the street; the character is the hero, everything else is quiet. */
+:root {
+  --bg: #f6f7f8;
+  --surface: #ffffff;
+  --ink: #15191c;
+  --muted: #5d676e;
+  --line: #dde2e5;
+  --red: #c8102e;      /* shop-sign red */
+  --red-soft: #fbe7ea;
+  --jade: #0b6e55;     /* minibus green */
+  --jade-soft: #e2f2ec;
+  --gold: #a36a00;
+  --f-han: "Noto Serif TC", "PMingLiU", "MingLiU", serif;
+  --f-body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1316; --surface: #181e22; --ink: #eef1f2; --muted: #9aa6ad; --line: #2b343a;
+    --red: #ff5a6e; --red-soft: #3a1820; --jade: #43c79f; --jade-soft: #12302a; --gold: #f0b54a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1316; --surface: #181e22; --ink: #eef1f2; --muted: #9aa6ad; --line: #2b343a;
+  --red: #ff5a6e; --red-soft: #3a1820; --jade: #43c79f; --jade-soft: #12302a; --gold: #f0b54a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.55;
+}
+.wrap {
+  max-width: 560px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 40px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 8px; }
+h1 .han { font-family: var(--f-han); font-weight: 900; color: var(--red); font-size: 24px; }
+.stat { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+.tabs button { border: 0; background: transparent; color: var(--muted); font: 500 14px var(--f-body); padding: 8px 4px; border-radius: 7px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 13px var(--f-body); padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--jade); background: var(--jade-soft); color: var(--jade); }
+.chip .n { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 3px; font-size: 12px; }
+
+button:focus-visible, input:focus-visible, .card:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.row label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+/* Card */
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 22px 18px 18px; display: flex; flex-direction: column; gap: 16px; cursor: pointer;
+  min-height: 330px;
+}
+.card .cat { font-size: 12px; letter-spacing: 0.06em; color: var(--muted); display: flex; justify-content: space-between; }
+.card .cat .known { color: var(--jade); font-weight: 700; }
+.word {
+  font-family: var(--f-han); font-weight: 900; text-align: center; line-height: 1.15;
+  font-size: clamp(48px, 16vw, 84px); letter-spacing: 0.04em; overflow-wrap: anywhere;
+}
+.word.long { font-size: clamp(40px, 12vw, 64px); }
+.hint { text-align: center; color: var(--muted); font-size: 13px; }
+.reveal { display: flex; flex-direction: column; gap: 12px; }
+.pron { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.jyut { font-family: var(--f-mono); color: var(--red); font-size: 16px; }
+.rom { font-size: 13px; color: var(--muted); }
+.mean { text-align: center; font-size: 18px; font-weight: 700; text-wrap: balance; }
+.note { font-size: 13.5px; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+
+.hun { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.hun div { border: 1px solid var(--line); border-radius: 9px; padding: 8px 6px 7px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.hun .c { font-family: var(--f-han); font-size: 28px; font-weight: 700; line-height: 1.2; }
+.hun .h { font-size: 13px; font-weight: 500; }
+.hun .canto { border-color: var(--gold); border-style: dashed; }
+.hun .canto .h { color: var(--gold); font-size: 12px; }
+
+.actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 14px var(--f-body); padding: 11px 8px; border-radius: 10px; cursor: pointer; }
+.btn.no { color: var(--red); border-color: var(--red); }
+.btn.yes { background: var(--jade); border-color: var(--jade); color: var(--surface); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.small { padding: 6px 10px; font-size: 13px; }
+
+/* Quiz */
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+.qprompt { text-align: center; color: var(--muted); font-size: 13px; }
+.choices { display: grid; gap: 8px; }
+.choice { text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 500 15px var(--f-body); padding: 12px 14px; border-radius: 10px; cursor: pointer; }
+.choice.right { border-color: var(--jade); background: var(--jade-soft); color: var(--jade); }
+.choice.wrong { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+.choice:disabled { cursor: default; }
+.ex { font-size: 13.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.ex b { font-family: var(--f-han); color: var(--ink); font-weight: 700; font-size: 16px; }
+
+/* List */
+.search { width: 100%; font: 15px var(--f-body); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.item { display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.item:first-child { border-top: 0; }
+.item .w { font-family: var(--f-han); font-size: 24px; font-weight: 700; grid-row: span 3; align-self: center; min-width: 3.2em; }
+.item .w.k { color: var(--jade); }
+.item .m { font-weight: 500; min-width: 0; }
+.item .j { font-family: var(--f-mono); font-size: 12.5px; color: var(--red); min-width: 0; overflow-wrap: anywhere; }
+.item .hh { font-size: 12.5px; color: var(--muted); min-width: 0; }
+.empty { padding: 24px; text-align: center; color: var(--muted); }
+.foot { font-size: 12px; color: var(--muted); text-align: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { animation: up .18s ease-out; }
+  @keyframes up { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1><span class="han">港字</span>홍콩 거리 한자</h1>
+    <span class="stat" id="stat"></span>
+  </header>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="card">카드</button>
+    <button role="tab" data-tab="quiz">뜻 퀴즈</button>
+    <button role="tab" data-tab="char">훈음 퀴즈</button>
+    <button role="tab" data-tab="list">목록</button>
+  </nav>
+  <div class="chips" id="chips"></div>
+  <main id="main"></main>
+  <p class="foot">발음은 광동어 월어병음(Jyutping), 숫자는 성조. 점선 칸은 한국 한자음이 없는 광동어 전용 글자.</p>
+</div>
+
+<script>
+// 글자별 훈음 (한국 한자 기준)
+const H = {};
+`銅 구리 동|鑼 징 라|灣 물굽이 만|尖 뾰족할 첨|沙 모래 사|咀 씹을 저|旺 왕성할 왕|角 뿔 각|油 기름 유|麻 삼 마|地 땅 지|佐 도울 좌|敦 도타울 돈|深 깊을 심|水 물 수|荃 향풀 전|葵 해바라기 규|涌 물솟을 용|屯 진칠 둔|門 문 문|將 장수 장|軍 군사 군|澳 깊을 오|鰂 오징어 즉|魚 물고기 어|筲 대그릇 소|箕 키 기|柴 섶 시|西 서녘 서|營 경영할 영|盤 소반 반|堅 굳을 견|尼 여승 니|城 재 성|仔 자세할 자|鑽 뚫을 찬|石 돌 석|山 메 산|九 아홉 구|龍 용 룡|塘 못 당|觀 볼 관|鯉 잉어 리|赤 붉을 적|柱 기둥 주|淺 얕을 천|薄 엷을 박|扶 도울 부|林 수풀 림|鴨 오리 압|洲 물가 주|大 큰 대|嶼 섬 서|長 길 장|坪 들 평|埔 들 포|粉 가루 분|嶺 고개 령|馬 말 마|鞍 안장 안|荔 여지 려|枝 가지 지|擺 벌일 파|花 꽃 화|街 거리 가|典 법 전|乍 잠깐 사|皇 임금 황|后 왕비 후|道 길 도|彌 두루 미|蘭 난초 란|桂 계수나무 계|坊 동네 방|中 가운데 중|環 고리 환|金 쇠 금|鐘 쇠북 종|啟 열 계|德 큰 덕|天 하늘 천|圍 에워쌀 위|錦 비단 금|田 밭 전|貢 바칠 공|坑 구덩이 갱|口 입 구|調 고를 조|景 볕 경|杏 살구 행|邨 마을 촌|跑 달릴 포|炮 대포 포|台 대 대|茶 차 다|餐 밥 찬|廳 관청 청|冰 얼음 빙|室 집 실|排 밀칠 배|檔 책상 당|押 누를 압|當 마땅 당|舖 가게 포|涼 서늘할 량|找 찾을 조|換 바꿀 환|店 가게 점|士 선비 사|多 많을 다|的 과녁 적|巴 꼬리 파|小 작을 소|渡 건널 도|輪 바퀴 륜|星 별 성|港 항구 항|鐵 쇠 철|八 여덟 팔|達 통달할 달|通 통할 통|屋 집 옥|廈 큰집 하|唐 당나라 당|樓 다락 루|吉 길할 길|出 날 출|租 조세 조|劈 쪼갤 벽|價 값 가|執 잡을 집|笠 삿갓 립|燕 제비 연|窩 움집 와|鮑 절인물고기 포|參 인삼 삼|翅 날개 시|肚 배 두|房 방 방|心 마음 심|滑 미끄러울 활|請 청할 청|勿 말 물|吸 마실 흡|煙 연기 연|入 들 입|閘 수문 갑|月 달 월|往 갈 왕|落 떨어질 락|車 수레 차|泊 배댈 박|慢 게으를 만|駛 달릴 사|升 되 승|降 내릴 강|機 틀 기|手 손 수|電 번개 전|梯 사다리 제|廁 뒷간 측|所 바 소|讓 사양할 양|座 자리 좌|警 깨우칠 경|署 관청 서|市 저자 시|熟 익을 숙|食 밥 식|碼 마노 마|頭 머리 두|隧 길 수|橋 다리 교|不 아닐 불|設 베풀 설|續 이을 속|按 누를 안|叉 갈래 차|燒 사를 소|臘 섣달 랍|鵝 거위 아|雲 구름 운|吞 삼킬 탄|麵 밀가루 면|腸 창자 장|蝦 새우 하|餃 경단 교|賣 팔 매|點 점 점|飲 마실 음|鴛 원앙 원|鴦 원앙 앙|凍 얼 동|檸 영몽 녕|菠 시금치 파|蘿 무 라|包 쌀 포|蛋 새알 단|撻 매질할 달|豉 메주 시|艇 배 정|粥 죽 죽|碗 사발 완|飯 밥 반|奶 젖 내|走 달릴 주|冰 얼음 빙|外 바깥 외|埋 묻을 매|單 홑 단|例 법식 례|湯 끓일 탕|糖 엿 당|楊 버들 양|甘 달 감|露 이슬 로|豆 콩 두|腐 썩을 부|雞 닭 계|該 마땅 해|謝 사례할 사|係 맬 계|睇 흘끗볼 제|靚 단장할 정|邊 가 변|度 법도 도|幾 몇 기|錢 돈 전|嘈 지껄일 조|平 평평할 평|門 문 문`
+  .split("|").forEach(s => { const [c, ...r] = s.split(" "); H[c] = r.join(" "); });
+
+// 한국 한자음이 없는 광동어 전용 글자: 뜻만
+const CANTO = { "嘅":"~의 (소유)", "唔":"아니다 (不)", "冇":"없다 (無)", "喺":"~에 있다", "啲":"조금, ~들", "嘢":"것, 물건", "咗":"~했다 (완료)", "佢":"그, 그녀", "嚟":"오다 (來)", "搵":"찾다 (找)", "攞":"가지다, 가져오다", "揸":"쥐다, 운전하다", "乜":"무엇", "劏":"가르다, 잡다", "埗":"부두 (埠)", "脷":"혀 (舌)", "砵":"음역자", "煲":"질냄비, 끓이다" };
+
+// 분류|단어|월어병음|영문/공식표기|뜻|메모
+const RAW = `
+place|銅鑼灣|tung4 lo4 waan1|Causeway Bay|코즈웨이베이|만의 모양이 징(銅鑼)처럼 둥글다고 붙은 이름. 쇼핑 중심가.
+place|尖沙咀|zim1 saa1 zeoi2|Tsim Sha Tsui|침사추이|뾰족한 모래 곶. 咀는 여기서 '부리, 곶'(嘴)의 뜻.
+place|旺角|wong6 gok3|Mong Kok|몽콕|원래 이름은 芒角(억새 곶). 지금은 '번창하는 곶'.
+place|油麻地|jau4 maa4 dei6|Yau Ma Tei|야우마테이|배에 바르는 기름(桐油)과 삼(麻)을 말리던 곳.
+place|佐敦|zo3 deon1|Jordan|조던|영어 Jordan의 음역. 뜻은 없음.
+place|深水埗|sam1 seoi2 bou6|Sham Shui Po|삼수이포|물 깊은 부두. 埗는 광동어로 부두.
+place|荃灣|cyun4 waan1|Tsuen Wan|췬완|MTR 췬완선 종점.
+place|葵涌|kwai4 cung1|Kwai Chung|콰이청|涌은 광동어로 '개울, 물길'. 컨테이너 항구.
+place|屯門|tyun4 mun4|Tuen Mun|툰문|군대가 주둔하던 관문.
+place|將軍澳|zoeng3 gwan1 ou3|Tseung Kwan O|청콴오|澳는 배가 댈 수 있는 물굽이. 澳門(마카오)의 澳.
+place|鰂魚涌|zak1 jyu4 cung1|Quarry Bay|쿼리베이|붕어(鰂魚)가 사는 개울. 鰂는 鯽(붕어)의 이체자로 쓰임.
+place|筲箕灣|saau1 gei1 waan1|Shau Kei Wan|사우께이완|만의 모양이 대나무 키(筲箕) 같다고 붙은 이름.
+place|柴灣|caai4 waan1|Chai Wan|차이완|땔나무(柴)를 모으던 만.
+place|西營盤|sai1 jing4 pun4|Sai Ying Pun|사이잉푼|영국군 서쪽 병영 자리.
+place|堅尼地城|gin1 nei4 dei6 sing4|Kennedy Town|케네디타운|Kennedy 음역 + 城.
+place|灣仔|waan1 zai2|Wan Chai|완차이|작은 만. 仔는 광동어로 '작은 것, 아이'.
+place|鑽石山|zyun3 sek6 saan1|Diamond Hill|다이아몬드힐|鑽石 = 다이아몬드.
+place|九龍塘|gau2 lung4 tong4|Kowloon Tong|까우룽똥|塘은 연못.
+place|觀塘|gun1 tong4|Kwun Tong|꾼통|MTR 꾼통선.
+place|鯉魚門|lei5 jyu4 mun4|Lei Yue Mun|레이유문|해산물 식당가로 유명한 해협.
+place|赤柱|cek3 cyu5|Stanley|스탠리|영어 이름과 한자 이름이 전혀 다른 곳.
+place|淺水灣|cin2 seoi2 waan1|Repulse Bay|리펄스베이|얕은 물의 만. 해수욕장.
+place|薄扶林|bok6 fu4 lam4|Pok Fu Lam|폭푸람|홍콩대 근처 주거지.
+place|鴨脷洲|aap3 lei6 zau1|Ap Lei Chau|압레이차우|오리 혀 모양 섬. 舌(sit3)이 '손해 보다'와 음이 같아 꺼리고 利를 붙인 脷를 씀.
+place|大嶼山|daai6 jyu4 saan1|Lantau Island|란타우섬|嶼는 섬. 공항과 디즈니랜드가 있는 큰 섬.
+place|長洲|coeng4 zau1|Cheung Chau|청차우|洲는 물 가운데 땅, 섬.
+place|坪洲|ping4 zau1|Peng Chau|펭차우|평평한 섬.
+place|大埔|daai6 bou3|Tai Po|타이포|埔는 물가의 평지.
+place|粉嶺|fan2 leng5|Fanling|판링|嶺은 광동어로 leng5.
+place|馬鞍山|maa5 on1 saan1|Ma On Shan|마온산|말안장 모양 산.
+place|荔枝角|lai6 zi1 gok3|Lai Chi Kok|라이치콕|荔枝 = 리치(과일).
+place|擺花街|baai2 faa1 gaai1|Lyndhurst Terrace|린드허스트 테라스|꽃을 늘어놓고 팔던 거리.
+place|砵典乍街|but3 din2 zaa3 gaai1|Pottinger Street|포팅거 스트리트|Pottinger 음역. 센트럴의 돌계단 길.
+place|皇后大道|wong4 hau6 daai6 dou6|Queen's Road|퀸스로드|홍콩섬의 첫 대로.
+place|彌敦道|nei4 deon1 dou6|Nathan Road|네이선로드|Nathan 음역. 彌를 광동어로 nei4라 읽음.
+place|蘭桂坊|laan4 gwai3 fong1|Lan Kwai Fong|란콰이퐁|술집 골목.
+place|中環|zung1 waan4|Central|센트럴|環은 '고리'에서 '구역'으로.
+place|金鐘|gam1 zung1|Admiralty|애드미럴티|해군 공창의 금빛 종에서 온 이름.
+place|啟德|kai2 dak1|Kai Tak|카이탁|옛 공항 자리.
+place|天水圍|tin1 seoi2 wai4|Tin Shui Wai|틴수이와이|圍는 성벽 두른 마을(圍村).
+place|錦田|gam2 tin4|Kam Tin|감틴|圍村이 남아 있는 곳.
+place|西貢|sai1 gung3|Sai Kung|사이쿵|해산물·섬 투어 출발지.
+place|坑口|haang1 hau2|Hang Hau|항하우|坑은 골짜기, 구덩이.
+place|調景嶺|tiu4 ging2 leng5|Tiu Keng Leng|티우겡렝|원래 吊頸嶺(목맨 고개)였다가 바꾼 이름.
+place|杏花邨|hang6 faa1 cyun1|Heng Fa Chuen|헹파췬|邨은 村의 이체자. 공공주택 단지 이름에 씀.
+place|跑馬地|paau2 maa5 dei2|Happy Valley|해피밸리|말이 달리는 땅, 경마장.
+place|炮台山|paau3 toi4 saan1|Fortress Hill|포트리스힐|포대가 있던 언덕.
+place|澳門|ou3 mun2|Macau|마카오|물굽이의 문.
+sign|茶餐廳|caa4 caan1 teng1|cha chaan teng|홍콩식 대중식당|밀크티·토스트·국수를 파는 동네 식당.
+sign|冰室|bing1 sat1|bing sutt|옛날식 찻집|茶餐廳의 전신. 빙수·음료를 팔던 가게.
+sign|大排檔|daai6 paai4 dong3|dai pai dong|노천 식당|허가증(大牌)을 걸던 노점 식당.
+sign|押|aat3|pawnshop sign|전당포 간판|박쥐 모양 간판 안에 이 한 글자.
+sign|當舖|dong3 pou2|pawnshop|전당포|舖는 가게.
+sign|涼茶舖|loeng4 caa4 pou2|herbal tea shop|한방 냉차 가게|열을 내린다는 쓴 약차.
+sign|找換店|zaau2 wun6 dim3|money changer|환전소|找換 = 바꿔 주다.
+sign|士多|si6 do1|store|구멍가게|영어 store 음역.
+sign|的士|dik1 si2|taxi|택시|영어 taxi 음역.
+sign|巴士|baa1 si2|bus|버스|영어 bus 음역.
+sign|小巴|siu2 baa1|minibus|미니버스|초록 지붕은 노선 고정, 빨간 지붕은 자유 노선.
+sign|渡輪|dou6 leon4|ferry|페리|
+sign|港鐵|gong2 tit3|MTR|홍콩 지하철|
+sign|八達通|baat3 daat6 tung1|Octopus|교통카드|팔방으로 통한다는 뜻.
+sign|屋邨|uk1 cyun1|public estate|공공임대 단지|邨은 村의 이체자.
+sign|大廈|daai6 haa6|building, mansion|빌딩|重慶大廈(청킹맨션) 같은 이름에 씀.
+sign|唐樓|tong4 lau4|tong lau|옛 서민 건물|1층은 가게, 위는 집. 엘리베이터 없음.
+sign|吉舖出租|gat1 pou2 ceot1 zou1|shop for rent|빈 점포 임대|空(hung1)이 凶과 음이 같아 吉로 바꿔 씀.
+sign|劈價|pek3 gaa3|price cut|대폭 할인|값을 쪼갠다.
+sign|執笠|zap1 lap1|close down|폐업|가게를 접다.
+sign|燕窩|jin3 wo1|bird's nest|제비집|보양식 가게 간판.
+sign|鮑參翅肚|baau1 sam1 ci3 tou5|dried seafood|전복·해삼·상어지느러미·부레|건어물 가게의 4대 고급품.
+sign|劏房|tong1 fong4|subdivided flat|쪼갠 방|아파트 한 채를 여러 칸으로 쪼갠 셋방.
+notice|小心地滑|siu2 sam1 dei6 waat6|Caution: slippery floor|미끄럼 주의|
+notice|請勿吸煙|cing2 mat6 kap1 jin1|No smoking|금연|請勿~ = ~하지 마십시오.
+notice|入閘|jap6 zaap6|enter gate|개찰구 진입|閘은 MTR 개찰구.
+notice|月台|jyut6 toi4|platform|승강장|
+notice|往|wong5|bound for|~행|往中環 = 센트럴행.
+notice|落車|lok6 ce1|get off|하차|광동어로 '내리다'는 落.
+notice|泊車|paak3 ce1|parking|주차|
+notice|慢駛|maan6 sai2|slow|서행|도로에 크게 쓰인 글자.
+notice|升降機|sing1 gong3 gei1|lift|엘리베이터|
+notice|扶手電梯|fu4 sau2 din6 tai1|escalator|에스컬레이터|손잡이 달린 전기 사다리.
+notice|廁所|ci3 so2|toilet|화장실|
+notice|讓座|joeng6 zo6|priority seat|자리 양보|
+notice|警署|ging2 cyu5|police station|경찰서|
+notice|街市|gaai1 si5|wet market|재래시장|
+notice|熟食中心|suk6 sik6 zung1 sam1|cooked food centre|푸드코트|시장 건물 위층의 식당가.
+notice|碼頭|maa5 tau4|pier|부두|
+notice|隧道|seoi6 dou6|tunnel|터널|
+notice|不設找續|bat1 cit3 zaau2 zuk6|no change given|거스름돈 없음|버스·미니버스 요금함에 붙어 있음.
+notice|按金|on3 gam1|deposit|보증금|
+food|叉燒|caa1 siu1|char siu|차슈|꼬챙이(叉)에 꽂아 구운 돼지고기.
+food|燒臘|siu1 laap6|roast meats|광동식 구이·염장고기|
+food|燒鵝|siu1 ngo2|roast goose|거위 구이|
+food|雲吞麵|wan4 tan1 min6|wonton noodles|완탕면|
+food|腸粉|coeng4 fan2|rice noodle roll|창펀|창자처럼 말아 낸 쌀피.
+food|蝦餃|haa1 gaau2|har gow|새우 만두|
+food|燒賣|siu1 maai2|siu mai|시우마이|
+food|飲茶|jam2 caa4|yum cha|얌차|차 마시며 딤섬 먹기.
+food|鴛鴦|jin1 joeng1|yuenyeung|커피+밀크티|원앙처럼 한 쌍을 섞은 음료.
+food|凍檸茶|dung3 ning4 caa4|iced lemon tea|아이스 레몬티|凍 = 차가운, 檸 = 레몬.
+food|菠蘿包|bo1 lo4 baau1|pineapple bun|파인애플 번|菠蘿 = 파인애플. 모양만 닮았고 파인애플은 없음.
+food|蛋撻|daan6 taat1|egg tart|에그타르트|撻는 tart 음역.
+food|豉油|si6 jau4|soy sauce|간장|
+food|艇仔粥|teng5 zai2 zuk1|sampan congee|배 위에서 팔던 죽|
+food|碗仔翅|wun2 zai2 ci3|imitation shark fin soup|가짜 샥스핀 수프|길거리 간식.
+food|煲仔飯|bou1 zai2 faan6|claypot rice|뚝배기밥|
+food|車仔麵|ce1 zai2 min6|cart noodles|수레 국수|토핑을 골라 담는 국수.
+food|奶茶|naai5 caa4|milk tea|밀크티|
+food|西多士|sai1 do1 si2|French toast|프렌치토스트|多士 = toast 음역.
+food|走冰|zau2 bing1|no ice|얼음 빼고|走 = 빼다.
+food|外賣|ngoi6 maai6|takeaway|포장|
+food|埋單|maai4 daan1|the bill|계산할게요|
+food|例湯|lai6 tong1|soup of the day|오늘의 수프|
+food|糖水|tong4 seoi2|sweet soup|디저트 수프|
+food|楊枝甘露|joeng4 zi1 gam1 lou6|mango pomelo sago|망고 포멜로 디저트|
+food|豆腐花|dau6 fu6 faa1|tofu pudding|두부 푸딩|
+food|雞蛋仔|gai1 daan6 zai2|egg waffle|에그와플|
+food|魚蛋|jyu4 daan2|fish balls|어묵볼|
+canto|唔該|m4 goi1||고마워요 / 실례합니다|서비스를 받을 때. 선물·칭찬엔 多謝.
+canto|多謝|do1 ze6||감사합니다|
+canto|唔係|m4 hai6||아니다|係 = 이다(是).
+canto|冇|mou5||없다|有에서 안쪽 두 획을 뺀 글자.
+canto|喺|hai2||~에 있다|
+canto|嘅|ge3||~의|普通話의 的.
+canto|啲|di1||조금, ~들|
+canto|嘢|je5||것, 물건|
+canto|咗|zo2||~했다|
+canto|佢|keoi5||그, 그녀|
+canto|睇|tai2||보다|
+canto|嚟|lai4||오다|
+canto|搵|wan2||찾다|
+canto|攞|lo2||가져가다|
+canto|揸|zaa1||쥐다, 운전하다|
+canto|靚|leng3||예쁘다|
+canto|乜嘢|mat1 je5||뭐|
+canto|邊度|bin1 dou6||어디|
+canto|幾多錢|gei2 do1 cin2||얼마예요|
+canto|嘈|cou4||시끄럽다|
+canto|平|peng4||싸다|平 = 값이 싸다. 平賣 = 싸게 팖.
+`.trim().split("\n").map((l, i) => {
+  const [c, w, j, r, m, n] = l.split("|");
+  return { id: w, c, w, j, r, m, n: n || "" };
+});
+
+const CATS = [["all","전체"],["place","지명"],["sign","간판"],["notice","표지판"],["food","음식"],["canto","광동어"]];
+const CATNAME = Object.fromEntries(CATS);
+
+// 훈음 퀴즈에서 뺄 쉬운 글자
+const EASY = new Set("中大小水山口地天田金心手入月出多八西外食頭長花道石門九車所不平市市房室".split(""));
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("hkhanja:" + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("hkhanja:" + k, JSON.stringify(v)); } catch {} }
+};
+const S = {
+  tab: store.get("tab", "card"),
+  cat: store.get("cat", "all"),
+  hideKnown: store.get("hideKnown", false),
+  known: new Set(store.get("known", [])),
+  order: [], idx: 0, flipped: false,
+  q: null, score: { ok: 0, n: 0 },
+  search: ""
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [a[i], a[k]] = [a[k], a[i]]; } return a; };
+const pool = () => RAW.filter(x => S.cat === "all" || x.c === S.cat);
+const deckPool = () => pool().filter(x => !(S.hideKnown && S.known.has(x.id)));
+const saveKnown = () => store.set("known", [...S.known]);
+
+function hunCells(w) {
+  return [...w].map(ch => H[ch]
+    ? `<div><span class="c">${ch}</span><span class="h">${esc(H[ch])}</span></div>`
+    : CANTO[ch]
+      ? `<div class="canto"><span class="c">${ch}</span><span class="h">광동자 · ${esc(CANTO[ch])}</span></div>`
+      : `<div><span class="c">${ch}</span><span class="h">–</span></div>`).join("");
+}
+function hunInline(w) {
+  return [...w].map(ch => H[ch] ? `${ch} ${H[ch]}` : CANTO[ch] ? `${ch} (광동자)` : ch).join(" · ");
+}
+
+function speak(text) {
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "zh-HK"; u.rate = 0.85;
+    const v = speechSynthesis.getVoices().find(v => /zh[-_]HK|yue/i.test(v.lang));
+    if (v) u.voice = v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch {}
+}
+const canSpeak = "speechSynthesis" in window;
+
+function renderChrome() {
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === S.tab));
+  const counts = { all: RAW.length };
+  RAW.forEach(x => counts[x.c] = (counts[x.c] || 0) + 1);
+  $("#chips").innerHTML = CATS.map(([k, v]) =>
+    `<button class="chip" data-cat="${k}" aria-pressed="${S.cat === k}">${v}<span class="n">${counts[k]}</span></button>`).join("");
+  const p = pool();
+  const k = p.filter(x => S.known.has(x.id)).length;
+  $("#stat").textContent = `외움 ${k} / ${p.length}`;
+}
+
+function newDeck() { S.order = shuffle(deckPool().map(x => x.id)); S.idx = 0; S.flipped = false; }
+
+function renderCard() {
+  if (!S.order.length) newDeck();
+  const byId = Object.fromEntries(RAW.map(x => [x.id, x]));
+  const x = byId[S.order[S.idx]];
+  if (!x) {
+    $("#main").innerHTML = `<div class="card" style="cursor:default"><div class="empty">이 분류는 다 외웠어요.<br><br><button class="btn small" id="showAll">외운 것도 다시 보기</button></div></div>`;
+    $("#showAll").onclick = () => { S.hideKnown = false; store.set("hideKnown", false); newDeck(); render(); };
+    return;
+  }
+  const isK = S.known.has(x.id);
+  $("#main").innerHTML = `
+    <div class="row">
+      <span>${S.idx + 1} / ${S.order.length}</span>
+      <label><input type="checkbox" id="hideKnown" ${S.hideKnown ? "checked" : ""}> 외운 카드 숨기기</label>
+    </div>
+    <div class="card" id="card" tabindex="0" role="button" aria-label="카드 뒤집기">
+      <div class="cat"><span>${CATNAME[x.c]}</span>${isK ? '<span class="known">외움</span>' : ""}</div>
+      <div class="word ${[...x.w].length > 3 ? "long" : ""}">${x.w}</div>
+      ${S.flipped ? `
+        <div class="reveal">
+          <div class="pron"><span class="jyut">${esc(x.j)}</span>${x.r ? `<span class="rom">${esc(x.r)}</span>` : ""}</div>
+          <div class="mean">${esc(x.m)}</div>
+          <div class="hun">${hunCells(x.w)}</div>
+          ${x.n ? `<div class="note">${esc(x.n)}</div>` : ""}
+        </div>` : `<div class="hint">눌러서 훈음·발음 보기</div>`}
+    </div>
+    <div class="actions">
+      <button class="btn no" id="again">다시</button>
+      <button class="btn" id="say" ${canSpeak ? "" : "disabled"}>광동어 듣기</button>
+      <button class="btn yes" id="got">외웠어요</button>
+    </div>`;
+  const flip = () => { S.flipped = !S.flipped; renderCard(); };
+  $("#card").onclick = flip;
+  $("#card").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } };
+  $("#hideKnown").onchange = e => { S.hideKnown = e.target.checked; store.set("hideKnown", S.hideKnown); newDeck(); render(); };
+  $("#say").onclick = () => speak(x.w);
+  const next = () => {
+    S.flipped = false;
+    if (S.hideKnown) { S.order = S.order.filter(id => !S.known.has(id)); if (S.idx >= S.order.length) S.idx = 0; }
+    else S.idx = (S.idx + 1) % S.order.length;
+    if (S.idx === 0 && !S.hideKnown) S.order = shuffle(S.order);
+    render();
+  };
+  $("#again").onclick = () => { S.known.delete(x.id); saveKnown(); const id = S.order.splice(S.idx, 1)[0]; S.order.splice(Math.min(S.idx + 3, S.order.length), 0, id); S.flipped = false; render(); };
+  $("#got").onclick = () => { S.known.add(x.id); saveKnown(); next(); };
+}
+
+function makeWordQ() {
+  const p = pool(); if (p.length < 4) return null;
+  const x = p[Math.floor(Math.random() * p.length)];
+  const others = shuffle(RAW.filter(y => y.m !== x.m)).slice(0, 3);
+  return { kind: "word", x, ans: x.m, choices: shuffle([x.m, ...others.map(o => o.m)]), picked: null };
+}
+function charPool() {
+  const set = new Set();
+  pool().forEach(x => [...x.w].forEach(ch => { if (H[ch] && !EASY.has(ch)) set.add(ch); }));
+  return [...set];
+}
+function makeCharQ() {
+  const cs = charPool(); if (cs.length < 4) return null;
+  const ch = cs[Math.floor(Math.random() * cs.length)];
+  const all = shuffle(Object.keys(H).filter(c => c !== ch && H[c] !== H[ch] && !EASY.has(c))).slice(0, 3);
+  return { kind: "char", ch, ans: H[ch], choices: shuffle([H[ch], ...all.map(c => H[c])]), picked: null };
+}
+
+function renderQuiz(kind) {
+  if (!S.q || S.q.kind !== kind) S.q = kind === "word" ? makeWordQ() : makeCharQ();
+  const q = S.q;
+  if (!q) { $("#main").innerHTML = `<div class="qcard"><div class="empty">문제를 만들 단어가 부족해요. 다른 분류를 골라 주세요.</div></div>`; return; }
+  const done = q.picked != null;
+  const big = q.kind === "word" ? q.x.w : q.ch;
+  let after = "";
+  if (done) {
+    if (q.kind === "word") {
+      after = `<div class="pron"><span class="jyut">${esc(q.x.j)}</span>${q.x.r ? `<span class="rom">${esc(q.x.r)}</span>` : ""}</div>
+        <div class="hun">${hunCells(q.x.w)}</div>${q.x.n ? `<div class="note">${esc(q.x.n)}</div>` : ""}`;
+    } else {
+      const ex = RAW.filter(x => x.w.includes(q.ch)).slice(0, 6);
+      after = `<div class="ex">${ex.map(x => `<span><b>${x.w}</b> ${esc(x.m)}</span>`).join("")}</div>`;
+    }
+  }
+  $("#main").innerHTML = `
+    <div class="row"><span>맞힘 ${S.score.ok} / ${S.score.n}</span><span>${CATNAME[S.cat]}</span></div>
+    <div class="qcard">
+      <div class="qprompt">${q.kind === "word" ? "뜻이 뭘까요?" : "훈음이 뭘까요?"}</div>
+      <div class="word ${[...big].length > 3 ? "long" : ""}">${big}</div>
+      <div class="choices">${q.choices.map((c, i) => {
+        const cls = done ? (c === q.ans ? "right" : c === q.picked ? "wrong" : "") : "";
+        return `<button class="choice ${cls}" data-i="${i}" ${done ? "disabled" : ""}>${esc(c)}</button>`;
+      }).join("")}</div>
+      ${after}
+      <div class="actions" style="grid-template-columns:1fr 1fr">
+        <button class="btn" id="say" ${canSpeak ? "" : "disabled"}>광동어 듣기</button>
+        <button class="btn yes" id="nextQ" ${done ? "" : "disabled"}>다음 문제</button>
+      </div>
+    </div>`;
+  document.querySelectorAll(".choice").forEach(b => b.onclick = () => {
+    q.picked = q.choices[+b.dataset.i];
+    S.score.n++; if (q.picked === q.ans) S.score.ok++;
+    renderQuiz(kind);
+  });
+  $("#say").onclick = () => speak(big);
+  $("#nextQ").onclick = () => { S.q = null; renderQuiz(kind); };
+}
+
+function renderList() {
+  const s = S.search.trim().toLowerCase();
+  const items = pool().filter(x => !s || [x.w, x.j, x.r, x.m, x.n, hunInline(x.w)].join(" ").toLowerCase().includes(s));
+  const active = document.activeElement && document.activeElement.id === "search";
+  $("#main").innerHTML = `
+    <input class="search" id="search" type="search" placeholder="한자, 뜻, 훈음, 발음으로 찾기" value="${esc(S.search)}">
+    <div style="height:10px"></div>
+    <div class="list">${items.length ? items.map(x => `
+      <div class="item">
+        <span class="w ${S.known.has(x.id) ? "k" : ""}">${x.w}</span>
+        <span class="m">${esc(x.m)}</span>
+        <span class="j">${esc(x.j)}${x.r ? ` · ${esc(x.r)}` : ""}</span>
+        <span class="hh">${esc(hunInline(x.w))}</span>
+      </div>`).join("") : `<div class="empty">찾는 단어가 없어요.</div>`}</div>`;
+  const inp = $("#search");
+  inp.oninput = e => { S.search = e.target.value; const pos = e.target.selectionStart; renderList(); const n = $("#search"); n.focus(); try { n.setSelectionRange(pos, pos); } catch {} };
+  if (active) inp.focus();
+}
+
+function render() {
+  renderChrome();
+  if (S.tab === "card") renderCard();
+  else if (S.tab === "quiz") renderQuiz("word");
+  else if (S.tab === "char") renderQuiz("char");
+  else renderList();
+}
+
+$("#tabs").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.tab = b.dataset.tab; store.set("tab", S.tab); S.q = null; render(); };
+$("#chips").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.cat = b.dataset.cat; store.set("cat", S.cat); newDeck(); S.q = null; render(); };
+if (canSpeak) try { speechSynthesis.getVoices(); } catch {}
+newDeck();
+render();
+</script>
